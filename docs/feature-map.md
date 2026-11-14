@@ -25,3 +25,5 @@ The e2e commands build the app and serve it on 127.0.0.1:4173 with the system Ch
 | 自動保存・元に戻す | `src/Topbar.tsx` | `src/store/showStore.ts`, `src/store/persistence.ts` | `src/store/store.test.ts`, `e2e/flows.spec.ts` | `npx vitest run src/store/store.test.ts -t store` |
 | アクセシビリティ | all of `src/editor/`, `src/app.css` | — | `e2e/a11y.spec.ts` | `npx playwright test e2e/a11y.spec.ts` |
 | CSP・ライセンス表記 | `vite.config.ts`, `scripts/third-party-licenses.mjs` | — | `e2e/regressions.spec.ts`, `e2e/fonts.spec.ts` | `npx playwright test e2e/regressions.spec.ts -g CSP` · `npx playwright test e2e/fonts.spec.ts -g license` |
+| OGP・メタデータ（SNS で共有したときのカード） | `index.html` (`<meta>`), `public/ogp.png` | `scripts/ogp/ogp.html`（画像の元。編集後 `node scripts/ogp/render.mjs` で描き直す） | `e2e/regressions.spec.ts` | `npx playwright test e2e/regressions.spec.ts -g "share-card"` |
+| ファビコン | `index.html` (`<link rel="icon">`), `public/favicon.svg` | `scripts/icons/render.mjs`（`favicon.svg` から PNG を描き直す） | `e2e/regressions.spec.ts` | `npx playwright test e2e/regressions.spec.ts -g favicon` |

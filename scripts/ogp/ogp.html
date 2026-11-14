@@ -1,0 +1,75 @@
+<!doctype html>
+<!-- Source of public/ogp.png (1200x630). Re-render with node scripts/ogp/render.mjs after editing. -->
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+      body {
+        font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+        background: #1f2937;
+        color: #ffffff;
+        position: relative;
+      }
+      .left { position: absolute; left: 80px; top: 92px; width: 600px; }
+      .brand { display: flex; align-items: center; gap: 24px; }
+      .mark { width: 76px; height: 76px; flex: none; }
+      h1 { font-size: 84px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+      .lead { margin-top: 44px; font-size: 44px; font-weight: 700; line-height: 1.4; }
+      .tags { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
+      .tags span {
+        font-size: 24px; font-weight: 600; padding: 8px 18px; border-radius: 999px;
+        background: #2563eb; color: #ffffff;
+      }
+      .foot { position: absolute; left: 80px; bottom: 56px; font-size: 26px; color: #9ca3af; font-weight: 500; }
+
+      .sheets { position: absolute; right: 40px; top: 70px; width: 400px; height: 490px; }
+      .sheet {
+        position: absolute; width: 300px; height: 424px; background: #ffffff; border-radius: 6px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); padding: 30px 28px;
+      }
+      .sheet.back { left: 100px; top: 0; transform: rotate(6deg); background: #e5e7eb; }
+      .sheet.front { left: 0; top: 56px; transform: rotate(-4deg); }
+      .sheet .title { height: 22px; width: 150px; background: #1f2937; border-radius: 3px; margin-bottom: 26px; }
+      .row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+      .num { width: 26px; height: 26px; border-radius: 50%; background: #2563eb; flex: none; }
+      .bar { height: 16px; background: #9ca3af; border-radius: 3px; }
+      .back .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+      .back .grid div { height: 60px; border: 3px solid #9ca3af; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="left">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="6" fill="#2563eb" />
+          <path d="M9 9h14M9 15h14M9 21h9" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+        </svg>
+        <h1>Stagebook</h1>
+      </div>
+      <p class="lead">バンドの1公演分の書類を、<br />まとめて作って印刷。</p>
+      <div class="tags">
+        <span>セットリスト</span><span>ステージ図</span><span>音響照明</span><span>取り置き</span><span>タイムテーブル</span>
+      </div>
+    </div>
+    <p class="foot">ブラウザだけで動く・サーバーもアカウントも不要</p>
+
+    <div class="sheets" aria-hidden="true">
+      <div class="sheet back">
+        <div class="title"></div>
+        <div class="grid"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      </div>
+      <div class="sheet front">
+        <div class="title"></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 180px"></div></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 140px"></div></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 200px"></div></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 120px"></div></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 170px"></div></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 150px"></div></div>
+        <div class="row"><div class="num"></div><div class="bar" style="width: 190px"></div></div>
+      </div>
+    </div>
+  </body>
+</html>

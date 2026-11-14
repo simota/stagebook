@@ -150,3 +150,25 @@ test("the performer sheet's font size stays exact while the setlist grows and sh
     await check(`after deleting ${k + 1}`);
   }
 });
+
+test("the page carries share-card metadata and serves its OGP image", async ({ page, request }) => {
+  const og = (property: string) => page.locator(`meta[property="${property}"]`);
+  await expect(og("og:title")).toHaveAttribute("content", /Stagebook/);
+  await expect(og("og:image")).toHaveAttribute("content", "https://simota.github.io/stagebook/ogp.png");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
+
+  const image = await request.get("ogp.png");
+  expect(image.status()).toBe(200);
+  expect(image.headers()["content-type"]).toBe("image/png");
+});
+
+test("every favicon the page links to is served with its image type", async ({ page, request }) => {
+  const links = page.locator('link[rel="icon"], link[rel="apple-touch-icon"]');
+  await expect(links).toHaveCount(3);
+  for (const href of await links.evaluateAll((els) => els.map((el) => el.getAttribute("href") ?? ""))) {
+    const res = await request.get(href);
+    expect(res.status(), href).toBe(200);
+    expect(res.headers()["content-type"], href).toMatch(/^image\/(svg\+xml|png)/);
+  }
+});
