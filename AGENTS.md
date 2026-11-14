@@ -41,14 +41,15 @@ this way: `docs/plans/architecture.md`. Where a feature's code and tests are: `d
 - To see a change in the app: `npm run dev`. Quality measurements (not a gate): `npm run measure`
 
 ## Safety
-- A push to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`): that is production. Only a person pushes.
-  Nothing enforces this: no branch protection is configured, and the repository has no remote yet
+- A push to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`, https://simota.github.io/stagebook/):
+  that is production. Only a person pushes. Nothing enforces this: no branch protection is configured on
+  `main` of https://github.com/simota/stagebook
 - No secret or credential is printed, committed or pasted into a file. The app has none and needs none
 - These need a person before the change is made: a new dependency (`package.json`, `package-lock.json`), a
   change to the schema in `src/model/show.ts`, the Content-Security-Policy in `vite.config.ts`, what a share
   link carries (`src/share.ts`), and the gate itself (`scripts/verify.sh`, `.github/`, this file). Nothing enforces
   this either (no CODEOWNERS yet)
-  <!-- #TODO(agent): BLOCKED — CODEOWNERS and branch protection on main wait for a remote and for a person to confirm owners. -->
+  <!-- #TODO(agent): BLOCKED — CODEOWNERS and branch protection on main wait for a person to confirm owners. -->
 - Guests' names in the ticket reservations never go into a share link (`src/share.ts` leaves them out; tested)
 
 ## Pull requests
