@@ -4,7 +4,7 @@ import type { Show } from "../model/show";
 import { Sheet, SheetHeader } from "./common";
 import { useFontVersion } from "./sheetFont";
 
-const MAX_PT = 46;
+const MAX_PT = 72;
 const MIN_PT = 10;
 
 /**
@@ -16,7 +16,7 @@ let lastFit: { key: string; pt: number } | null = null;
 /**
  * Picks the largest whole-pt size at which every title fits on one line and the list fits the page (MIN_PT if
  * none does). Overflow only grows with the size, so a search that measures a few sizes finds the same size as
- * stepping down 1pt at a time (up to 36 layouts) — this runs on every keystroke in the setlist.
+ * stepping down 1pt at a time (up to 62 layouts) — this runs on every keystroke in the setlist.
  * `drawn` must change whenever anything drawn on the sheet changes.
  */
 function useFitText(drawn: string) {

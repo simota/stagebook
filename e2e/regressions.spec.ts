@@ -80,7 +80,7 @@ test("the performer sheet's font size matches a 1pt-step search for short and lo
   const linearSearch = () => page.evaluate(() => [...document.querySelectorAll<HTMLElement>(".perf-list")].map((list) => {
     const applied = list.style.fontSize;
     const overflows = () => list.scrollHeight > list.clientHeight + 1 || list.scrollWidth > list.clientWidth + 1;
-    let size = 46;
+    let size = 72;
     list.style.fontSize = `${size}pt`;
     while (size > 10 && overflows()) list.style.fontSize = `${--size}pt`;
     list.style.fontSize = applied;
@@ -129,7 +129,7 @@ test("the performer sheet's font size stays exact while the setlist grows and sh
     const pairs = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>(".perf-list")].map((list) => {
       const applied = list.style.fontSize;
       const overflows = () => list.scrollHeight > list.clientHeight + 1 || list.scrollWidth > list.clientWidth + 1;
-      let size = 46;
+      let size = 72;
       list.style.fontSize = `${size}pt`;
       while (size > 10 && overflows()) list.style.fontSize = `${--size}pt`;
       list.style.fontSize = applied;
