@@ -34,11 +34,11 @@
 /* A-1 performer */
 .perf { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .perf-list { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-evenly; }
-.p-row { display: grid; grid-template-columns: 1.6em 1fr auto; column-gap: .45em; align-items: baseline; line-height: 1.12; }
+.p-row { display: grid; grid-template-columns: 1.1em 1fr auto; column-gap: .3em; align-items: baseline; line-height: 1.12; }
 .perf.no-numbers .p-row { grid-template-columns: 1fr auto; }
 .perf.no-numbers .p-no { display: none; }
 .perf.no-numbers .p-note { grid-column: 1 / 3; }
-.p-no { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+.p-no { font-size: .65em; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
 .p-title { font-weight: 800; letter-spacing: .01em; white-space: nowrap; }
 .p-bpm { font-size: .45em; font-weight: 700; white-space: nowrap; }
 .p-note { grid-column: 2 / 4; font-size: .38em; font-weight: 500; color: var(--sub); line-height: 1.3; }

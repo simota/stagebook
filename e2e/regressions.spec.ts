@@ -172,3 +172,16 @@ test("every favicon the page links to is served with its image type", async ({ p
     expect(res.headers()["content-type"], href).toMatch(/^image\/(svg\+xml|png)/);
   }
 });
+
+test("song numbers on the performer sheet are smaller than the titles so they cost the titles little width", async ({ page }) => {
+  await freshStart(page);
+  const [no, title, col, list] = await page.evaluate(() => {
+    const row = document.querySelector<HTMLElement>(".perf:not(.no-numbers) .p-row:not(.p-se)")!;
+    const px = (el: Element) => parseFloat(getComputedStyle(el).fontSize);
+    const title = row.querySelector(".p-title")!;
+    const used = title.getBoundingClientRect().left - row.getBoundingClientRect().left;
+    return [px(row.querySelector(".p-no")!), px(title), used, px(row.closest(".perf-list")!)];
+  });
+  expect(no).toBeLessThanOrEqual(title * 0.7);
+  expect(col).toBeLessThanOrEqual(list * 1.5);
+});
