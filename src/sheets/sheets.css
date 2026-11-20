@@ -79,6 +79,7 @@
 
 /* E reservations (door list) */
 .sheet table.reserve-table { font-size: 10pt; }
+.reserve-table th:first-child { width: 9mm; }
 .reserve-table th:last-child { width: 14mm; }
 .reserve-table tr.blank td { height: 8mm; }
 .reserve-empty { color: var(--sub); text-align: center; margin: 6mm 0; }
