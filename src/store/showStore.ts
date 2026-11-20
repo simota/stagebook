@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { sampleShow } from "../model/sample";
 import { emptyShow, newId, type Show } from "../model/show";
+import { applyStageFile } from "../model/stageFile";
 import * as db from "./persistence";
 
 export type Tab = "info" | "members" | "setlist" | "stage" | "gear" | "cue" | "reserve" | "timetable" | "text";
@@ -36,6 +37,8 @@ type State = {
   createShow: (kind: "empty" | "sample" | "duplicate") => void;
   deleteCurrent: () => void;
   importFile: (file: File) => Promise<void>;
+  /** Replaces the current show's stage setup with a file from 「ステージ設定を書き出し」; undoable. */
+  importStage: (file: File) => Promise<void>;
   openShared: (show: Show) => void;
   setTab: (tab: Tab) => void;
   setSheet: (sheet: SheetId) => void;
@@ -147,6 +150,27 @@ export const useShowStore = create<State>((set, get) => {
         index,
         notice: errorNotice(error) ?? { kind: "info", text: `バックアップから ${r.shows.length} 件の公演を復元しました${skipped}。上の一覧から開けます` },
       });
+    },
+
+    importStage: async (file) => {
+      let data: unknown;
+      try {
+        data = JSON.parse(await file.text());
+      } catch (e) {
+        return set({ notice: { kind: "error", text: `読み込めませんでした: JSONとして読めません: ${(e as Error).message}` } });
+      }
+      const r = applyStageFile(get().show, data);
+      if (!r.ok) return set({ notice: { kind: "error", text: `読み込めませんでした: ${r.error}` } });
+      set({ lastEditAt: 0 }); // its own undo step, never merged with an edit just before
+      get().update((d) => {
+        d.members = r.show.members;
+        d.stageParts = r.show.stageParts;
+        d.inputs = r.show.inputs;
+        d.gear = r.show.gear;
+        d.monitors = r.show.monitors;
+      });
+      const added = r.addedMembers ? `（メンバーを ${r.addedMembers} 人追加）` : "";
+      set({ selectedPartId: null, lastEditAt: 0, notice: { kind: "info", text: `「${file.name}」のステージ設定に置き換えました${added}。「元に戻す」で戻せます` } });
     },
 
     openShared: (show) =>

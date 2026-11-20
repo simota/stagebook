@@ -119,6 +119,29 @@ describe("store", () => {
     vi.useRealTimers();
   });
 
+  it("replaces the stage setup from a stage file as one undo step, and leaves the show alone on a bad file", async () => {
+    const store = await importStore();
+    const s = () => store.getState();
+    const { stageFileOf } = await import("../model/stageFile");
+    const file = stageFileOf(s().show);
+    s().update((d) => { d.stageParts = []; d.inputs = []; d.meta.band = "edited"; });
+    await s().importStage(new File([JSON.stringify(file)], "stage.json"));
+    expect(s().show.stageParts).toEqual(file.stageParts);
+    expect(s().show.meta.band).toBe("edited");
+    expect(s().notice?.kind).toBe("info");
+    expect(JSON.parse(storage.getItem(`setlist:show:${s().show.id}`)!).stageParts).toHaveLength(file.stageParts.length);
+    s().undo();
+    expect(s().show.stageParts).toEqual([]);
+    expect(s().show.meta.band).toBe("edited");
+
+    const before = s().show;
+    await s().importStage(new File(["{not json"], "bad.json"));
+    expect(s().notice?.kind).toBe("error");
+    await s().importStage(new File([JSON.stringify(before)], "show.json"));
+    expect(s().notice?.text).toContain("ステージ設定ではありません");
+    expect(s().show).toBe(before);
+  });
+
   it("drops history when switching shows", async () => {
     const store = await importStore();
     store.getState().update((d) => { d.meta.band = "A"; });

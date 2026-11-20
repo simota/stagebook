@@ -16,8 +16,11 @@ function removePart(d: Show, id: string) {
   for (const m of d.monitors) if (m.wedgePartId === id) m.wedgePartId = null;
 }
 
-export function StageEditor() {
+/** `exportStage` downloads the stage setup and returns the file name (the editor may not reach `download.ts`). */
+export function StageEditor({ exportStage }: { exportStage: () => string }) {
   const show = useShowStore((s) => s.show);
+  const { importStage, setNotice } = useShowStore.getState();
+  const stageFileRef = useRef<HTMLInputElement>(null);
   const update = useShowStore((s) => s.update);
   const selectedId = useShowStore((s) => s.selectedPartId);
   const select = useShowStore((s) => s.selectPart);
@@ -84,6 +87,18 @@ export function StageEditor() {
 
   return (
     <div className="panel">
+      <div className="line" role="group" aria-label="ステージ設定のファイル">
+        <button type="button" onClick={() => setNotice({ kind: "info", text: `「${exportStage()}」を書き出しました。別の公演の「ステージ」タブで読み込めます` })}
+          title="メンバー・ステージ図・チャンネル表・機材・返しを書き出します">ステージ設定を書き出し</button>
+        <button type="button" onClick={() => stageFileRef.current!.click()}
+          title="この公演のステージ図・チャンネル表・機材・返しを、ファイルの内容に置き換えます">ステージ設定を読み込み</button>
+        <input ref={stageFileRef} type="file" accept="application/json,.json" hidden aria-label="ステージ設定ファイル"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void importStage(f);
+            e.target.value = "";
+          }} />
+      </div>
       <div className="palette">
         {PART_TEMPLATES.map((t) => (
           <button type="button" key={t.key} onClick={() => addPart(t)}>＋ {t.name}</button>

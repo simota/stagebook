@@ -55,6 +55,30 @@ test("exports and re-imports JSON, and rejects foreign JSON", async ({ page }, i
   await expect(page.getByText("このアプリで書き出した公演データではありません")).toBeVisible();
 });
 
+test("exports the stage setup and reads it into another show", async ({ page }, info) => {
+  await page.getByRole("tab", { name: "ステージ" }).click();
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "ステージ設定を書き出し" }).click()]);
+  const file = info.outputPath("stage.json");
+  await dl.saveAs(file);
+  const rows = await page.locator(".ch-row").count();
+
+  await page.getByRole("button", { name: "新規" }).click();
+  await page.getByRole("tab", { name: "ステージ" }).click();
+  await expect(page.locator(".ch-row")).toHaveCount(0);
+  await page.getByLabel("ステージ設定ファイル").setInputFiles(file);
+  await expect(page.getByText("ステージ設定に置き換えました")).toBeVisible();
+  await expect(page.locator(".ch-row")).toHaveCount(rows);
+  const show = await savedShow(page);
+  expect(show.meta.band).toBe("新しいバンド");
+  expect(show.items).toHaveLength(0);
+  expect(show.members.length).toBeGreaterThan(0);
+
+  await page.getByRole("button", { name: "元に戻す" }).click();
+  await expect(page.locator(".ch-row")).toHaveCount(0);
+  await page.getByLabel("ステージ設定ファイル").setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from('{"hello":1}') });
+  await expect(page.getByText("このアプリで書き出したステージ設定ではありません")).toBeVisible();
+});
+
 test("applies text and reports bad lines", async ({ page }) => {
   await page.getByRole("tab", { name: "テキスト" }).click();
   const area = page.getByLabel("テキストで編集");

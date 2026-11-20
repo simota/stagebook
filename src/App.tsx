@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { flushSync } from "react-dom";
+import { downloadStageFile } from "./download";
 import { CueEditor } from "./editor/CueEditor";
 import { GearEditor } from "./editor/GearEditor";
 import { MembersEditor } from "./editor/MembersEditor";
@@ -26,7 +27,7 @@ const TABS: { id: Tab; label: string; render: () => ReactNode }[] = [
   { id: "info", label: "基本情報", render: () => <ShowInfoForm /> },
   { id: "members", label: "メンバー", render: () => <MembersEditor /> },
   { id: "setlist", label: "セットリスト", render: () => <SetlistEditor /> },
-  { id: "stage", label: "ステージ", render: () => <StageEditor /> },
+  { id: "stage", label: "ステージ", render: () => <StageEditor exportStage={() => downloadStageFile(useShowStore.getState().show)} /> },
   { id: "gear", label: "機材・返し", render: () => <GearEditor /> },
   { id: "cue", label: "音響照明", render: () => <CueEditor /> },
   { id: "reserve", label: "取り置き", render: () => <ReservationEditor /> },
