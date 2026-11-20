@@ -50,10 +50,17 @@ export function ReservationSheet({ show }: { show: Show }) {
         </tbody>
       </table>
       {list.length === 0 && blanks.length === 0 && <p className="reserve-empty">取り置きはありません</p>}
-      <div className="tot">
-        合計 <b>{reservationTotalLabel(totals)}</b>
-        {opt.member && totals.byMember.length > 0 && <>　{totals.byMember.map((m) => `${m.name} ${m.tickets}枚`).join(" / ")}</>}
-      </div>
+      {blanks.length > 0 ? (
+        /* Guests written in by hand are not in the computed total, so it is left blank to be filled in. */
+        <div className="tot handwrite">
+          合計 <span className="fill" />枚（<span className="fill" />件）
+        </div>
+      ) : (
+        <div className="tot">
+          合計 <b>{reservationTotalLabel(totals)}</b>
+          {opt.member && totals.byMember.length > 0 && <>　{totals.byMember.map((m) => `${m.name} ${m.tickets}枚`).join(" / ")}</>}
+        </div>
+      )}
     </Sheet>
   );
 }

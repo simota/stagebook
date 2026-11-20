@@ -77,7 +77,13 @@ test("a ticket count can be left blank, and blank rows are printed for writing g
   await expect(sheet.locator("tbody tr.blank").first().locator("td").first()).toHaveText("4");
   await expect(sheet.locator("tbody tr.blank").last().locator("td").first()).toHaveText("8");
   await expect(sheet.locator("tbody tr.blank").first().locator("td:nth-child(2)")).toHaveText("");
+  // Handwritten guests are not in the computed total, so the total is left blank to fill in.
+  await expect(sheet.locator(".tot")).toHaveText("合計 枚（件）");
+  await expect(sheet.locator(".tot .fill")).toHaveCount(2);
+  await expect(page.locator(".time-bar")).toContainText("合計 4枚（3件、枚数未記入 1件）");
+  await page.getByLabel("手書き用の空欄の行数").fill("0");
   await expect(sheet.locator(".tot")).toContainText("合計 4枚（3件、枚数未記入 1件）");
+  await page.getByLabel("手書き用の空欄の行数").fill("5");
 
   await page.reload();
   await page.getByRole("tab", { name: "取り置き" }).click();
@@ -93,4 +99,5 @@ test("with no guests, the sheet is all blank rows to fill in by hand", async ({ 
   await page.getByLabel("手書き用の空欄の行数").fill("20");
   await expect(sheet.locator("tbody tr.blank")).toHaveCount(20);
   await expect(sheet.locator(".reserve-empty")).toHaveCount(0);
+  await expect(sheet.locator(".tot .fill")).toHaveCount(2);
 });
