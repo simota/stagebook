@@ -18,3 +18,11 @@ test("a show without reservations or a timetable prints the four sheets only", a
   await page.getByRole("button", { name: "新規" }).click();
   expect(await orientations(page)).toEqual(["portrait", "portrait", "landscape", "landscape"]);
 });
+
+test("a show without reservations still prints the door list when it has blank rows to fill in by hand", async ({ page }) => {
+  await freshStart(page);
+  await page.getByRole("button", { name: "新規" }).click();
+  await page.getByRole("tab", { name: "取り置き" }).click();
+  await page.getByLabel("手書き用の空欄の行数").fill("10");
+  expect(await orientations(page)).toEqual(["portrait", "portrait", "landscape", "landscape", "portrait"]);
+});

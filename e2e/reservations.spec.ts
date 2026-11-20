@@ -61,3 +61,36 @@ test("a share link does not carry the guests' names, and says so", async ({ page
   expect(await recipient.evaluate(() => document.body.innerText.includes("高橋 一郎"))).toBe(false);
   await other.close();
 });
+
+test("a ticket count can be left blank, and blank rows are printed for writing guests in by hand", async ({ page }) => {
+  await page.getByRole("tab", { name: "取り置き" }).click();
+  const sheet = page.locator(".preview .sheet");
+  await page.getByLabel("予約1 枚数").fill("");
+  await expect(sheet.locator(".tot")).toContainText("合計 4枚（3件、枚数未記入 1件）");
+  const takahashi = sheet.locator("tbody tr", { hasText: "高橋 一郎" });
+  await expect(takahashi.locator("td:nth-child(4)")).toHaveText("");
+  expect((await savedShow(page)).reservations[0].count).toBeNull();
+
+  await expect(sheet.locator("tbody tr.blank")).toHaveCount(0);
+  await page.getByLabel("手書き用の空欄の行数").fill("5");
+  await expect(sheet.locator("tbody tr.blank")).toHaveCount(5);
+  await expect(sheet.locator("tbody tr.blank").first().locator("td").first()).toHaveText("4");
+  await expect(sheet.locator("tbody tr.blank").last().locator("td").first()).toHaveText("8");
+  await expect(sheet.locator("tbody tr.blank").first().locator("td:nth-child(2)")).toHaveText("");
+  await expect(sheet.locator(".tot")).toContainText("合計 4枚（3件、枚数未記入 1件）");
+
+  await page.reload();
+  await page.getByRole("tab", { name: "取り置き" }).click();
+  await expect(page.getByLabel("手書き用の空欄の行数")).toHaveValue("5");
+  await expect(page.getByLabel("予約1 枚数")).toHaveValue("");
+});
+
+test("with no guests, the sheet is all blank rows to fill in by hand", async ({ page }) => {
+  await page.getByRole("tab", { name: "取り置き" }).click();
+  for (const name of ["高橋 一郎", "伊藤 花子", "渡辺 健"]) await page.getByRole("button", { name: `${name} を削除` }).click();
+  const sheet = page.locator(".preview .sheet");
+  await expect(sheet.locator(".reserve-empty")).toBeVisible();
+  await page.getByLabel("手書き用の空欄の行数").fill("20");
+  await expect(sheet.locator("tbody tr.blank")).toHaveCount(20);
+  await expect(sheet.locator(".reserve-empty")).toHaveCount(0);
+});

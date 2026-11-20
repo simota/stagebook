@@ -1,4 +1,4 @@
-import { doorList, memberName, reservationTotals } from "../model/derive";
+import { doorList, memberName, reservationTotalLabel, reservationTotals } from "../model/derive";
 import type { Show } from "../model/show";
 import { Sheet, SheetHeader } from "./common";
 
@@ -6,7 +6,8 @@ import { Sheet, SheetHeader } from "./common";
 export function ReservationSheet({ show }: { show: Show }) {
   const opt = show.print.reserve;
   const list = doorList(show);
-  const { tickets, guests, byMember } = reservationTotals(show);
+  const totals = reservationTotals(show);
+  const blanks = Array.from({ length: show.reservationBlankRows }, (_, i) => list.length + i + 1);
 
   return (
     <Sheet orientation="portrait">
@@ -29,18 +30,29 @@ export function ReservationSheet({ show }: { show: Show }) {
               <td className="n">{i + 1}</td>
               <td><b>{r.name}</b></td>
               {opt.kana && <td>{r.kana}</td>}
-              <td className="n">{r.count}</td>
+              <td className="n">{r.count ?? ""}</td>
               {opt.member && <td>{memberName(show, r.memberId)}</td>}
               {opt.note && <td>{r.note}</td>}
               <td className="c">{r.status === "来場" ? "済" : ""}</td>
             </tr>
           ))}
+          {blanks.map((n) => (
+            <tr key={`blank-${n}`} className="blank">
+              <td className="n">{n}</td>
+              <td />
+              {opt.kana && <td />}
+              <td />
+              {opt.member && <td />}
+              {opt.note && <td />}
+              <td />
+            </tr>
+          ))}
         </tbody>
       </table>
-      {list.length === 0 && <p className="reserve-empty">取り置きはありません</p>}
+      {list.length === 0 && blanks.length === 0 && <p className="reserve-empty">取り置きはありません</p>}
       <div className="tot">
-        合計 <b>{tickets}枚</b>（{guests}件）
-        {opt.member && byMember.length > 0 && <>　{byMember.map((m) => `${m.name} ${m.tickets}枚`).join(" / ")}</>}
+        合計 <b>{reservationTotalLabel(totals)}</b>
+        {opt.member && totals.byMember.length > 0 && <>　{totals.byMember.map((m) => `${m.name} ${m.tickets}枚`).join(" / ")}</>}
       </div>
     </Sheet>
   );

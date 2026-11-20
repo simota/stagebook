@@ -11,6 +11,7 @@ export const LIGHT_LEVELS = ["", "暗", "中", "明"] as const;
 export const LIGHT_MOTIONS = ["", "なし", "ゆっくり", "速い", "曲に合わせる"] as const;
 const PART_TYPES = ["riser", "drums", "amp", "person", "mic", "box", "power", "wedge", "text"] as const;
 export const GEAR_OWNERSHIP = ["持込", "借用"] as const;
+export const MAX_BLANK_ROWS = 100;
 export const RESERVATION_STATUS = ["予約", "来場", "キャンセル"] as const;
 
 export const TIME_RE = /^$|^([01]\d|2[0-3]):[0-5]\d$/;
@@ -99,7 +100,8 @@ const reservation = z.object({
   name: z.string(),
   /** Reading in kana, for sorting the submitted list in 五十音 order; kanji alone do not sort by reading. */
   kana: z.string(),
-  count: z.number().int().positive(),
+  /** null when the number of tickets is not known yet; the sheet leaves the cell blank to fill in by hand. */
+  count: z.number().int().positive().nullable(),
   memberId: z.string().nullable(),
   status: z.enum(RESERVATION_STATUS),
   note: z.string(),
@@ -158,6 +160,8 @@ const showSchema = z.object({
   timetable: z.array(timetableRow).default([]),
   /** Added after v1 shipped: older data has no reservations. */
   reservations: z.array(reservation).default([]),
+  /** Empty rows printed after the door list, for guests written in by hand. Added after v1 shipped. */
+  reservationBlankRows: z.number().int().min(0).max(MAX_BLANK_ROWS).default(0),
   general: z.object({ light: z.string(), sound: z.string(), sync: z.string() }),
 });
 
@@ -244,6 +248,7 @@ export function emptyShow(): Show {
     monitors: [],
     timetable: [],
     reservations: [],
+    reservationBlankRows: 0,
     general: { light: "", sound: "", sync: "" },
   };
 }

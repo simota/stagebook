@@ -100,18 +100,31 @@ export function doorList(show: Show): Reservation[] {
     .sort((a, b) => ja.compare(a.kana || a.name, b.kana || b.name) || ja.compare(a.name, b.name));
 }
 
-type ReservationTotals = { tickets: number; guests: number; byMember: { name: string; tickets: number }[] };
+type ReservationTotals = { tickets: number; guests: number; uncounted: number; byMember: { name: string; tickets: number }[] };
 
-/** Tickets on the door list, in total and per member (in member order, then 「担当なし」). */
+/**
+ * Tickets on the door list, in total and per member (in member order, then 「担当なし」). Guests whose ticket count
+ * is blank add nothing to the tickets and are counted in `uncounted`.
+ */
 export function reservationTotals(show: Show): ReservationTotals {
   const list = doorList(show);
   const byId = new Map<string | null, number>();
-  for (const r of list) byId.set(r.memberId, (byId.get(r.memberId) ?? 0) + r.count);
+  for (const r of list) byId.set(r.memberId, (byId.get(r.memberId) ?? 0) + (r.count ?? 0));
   const byMember = [
     ...show.members.filter((m) => byId.has(m.id)).map((m) => ({ name: m.name || "（名前なし）", tickets: byId.get(m.id)! })),
     ...(byId.has(null) ? [{ name: "担当なし", tickets: byId.get(null)! }] : []),
   ];
-  return { tickets: list.reduce((n, r) => n + r.count, 0), guests: list.length, byMember };
+  return {
+    tickets: list.reduce((n, r) => n + (r.count ?? 0), 0),
+    guests: list.length,
+    uncounted: list.filter((r) => r.count === null).length,
+    byMember,
+  };
+}
+
+/** 「5枚（3件）」, or 「5枚（3件、枚数未記入 1件）」 when some counts are blank. */
+export function reservationTotalLabel({ tickets, guests, uncounted }: ReservationTotals): string {
+  return `${tickets}枚（${guests}件${uncounted > 0 ? `、枚数未記入 ${uncounted}件` : ""}）`;
 }
 
 /** The door list as plain text for sending by mail or a form; columns follow the sheet's print options. */
@@ -119,13 +132,13 @@ export function reservationText(show: Show): string {
   const opt = show.print.reserve;
   const head = `【取り置き】${show.meta.band}（${[show.meta.date, show.meta.venue].filter(Boolean).join(" ")}）`;
   const lines = doorList(show).map((r) => {
-    const parts = [opt.kana && r.kana ? `${r.name}（${r.kana}）` : r.name, `${r.count}枚`];
+    const parts = [opt.kana && r.kana ? `${r.name}（${r.kana}）` : r.name];
+    if (r.count !== null) parts.push(`${r.count}枚`);
     if (opt.member && r.memberId) parts.push(`担当: ${memberName(show, r.memberId)}`);
     if (opt.note && r.note) parts.push(r.note);
     return parts.join(" ");
   });
-  const { tickets, guests } = reservationTotals(show);
-  return [head, ...lines, `計 ${tickets}枚（${guests}件）`].join("\n");
+  return [head, ...lines, `計 ${reservationTotalLabel(reservationTotals(show))}`].join("\n");
 }
 
 /** Start and end of a timetable row; the band's own set follows the start time and slot length in 基本情報. */

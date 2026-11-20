@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { channelLabel, channelsByPart, doorList, parseDuration, partLabel, powerTotal, reservationText, reservationTotals, rowTimes, songNumbers, timetableTemplate, totalSec } from "./derive";
+import { channelLabel, channelsByPart, doorList, parseDuration, partLabel, powerTotal, reservationText, reservationTotalLabel, reservationTotals, rowTimes, songNumbers, timetableTemplate, totalSec } from "./derive";
 import { PART_TEMPLATES } from "./presets";
 import { sampleShow } from "./sample";
 import { emptyShow, parseShow } from "./show";
@@ -188,7 +188,7 @@ describe("reservations", () => {
 
   it("totals tickets overall and per member", () => {
     expect(reservationTotals(withGuests())).toEqual({
-      tickets: 4, guests: 3, byMember: [{ name: "山田", tickets: 2 }, { name: "鈴木", tickets: 1 }, { name: "担当なし", tickets: 1 }],
+      tickets: 4, guests: 3, uncounted: 0, byMember: [{ name: "山田", tickets: 2 }, { name: "鈴木", tickets: 1 }, { name: "担当なし", tickets: 1 }],
     });
   });
 
@@ -199,6 +199,25 @@ describe("reservations", () => {
     );
     s.print.reserve = { kana: false, member: false, note: false };
     expect(reservationText(s).split("\n")[1]).toBe("Brown 1枚");
+  });
+
+  it("leaves a blank ticket count out of the total and says how many are blank", () => {
+    const s = withGuests();
+    s.reservations[0].count = null;
+    const totals = reservationTotals(s);
+    expect(totals).toMatchObject({ tickets: 2, guests: 3, uncounted: 1 });
+    expect(totals.byMember[0]).toEqual({ name: "山田", tickets: 0 });
+    expect(reservationTotalLabel(totals)).toBe("2枚（3件、枚数未記入 1件）");
+    const lines = reservationText(s).split("\n");
+    expect(lines[3]).toBe("山本（やまもと） 担当: 山田");
+    expect(lines[4]).toBe("計 2枚（3件、枚数未記入 1件）");
+    expect(parseShow(s).ok).toBe(true);
+  });
+
+  it("reads older data without blank rows as none, and refuses a negative count", () => {
+    const { reservationBlankRows: _b, ...old } = sampleShow();
+    expect(parseShow(old)).toMatchObject({ ok: true, show: { reservationBlankRows: 0 } });
+    expect(parseShow({ ...sampleShow(), reservationBlankRows: -1 }).ok).toBe(false);
   });
 
   it("reads older data without reservations, and unlinks a missing member", () => {

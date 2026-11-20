@@ -63,7 +63,7 @@ export function App() {
   const fontStyle = sheetFontStyle(show.font);
   /** 「全シート印刷」 leaves out the optional sheets a show has nothing for, instead of printing them blank. */
   const inPrintAll = (id: SheetId) =>
-    id === "reserve" ? show.reservations.some((r) => r.status !== "キャンセル")
+    id === "reserve" ? show.reservationBlankRows > 0 || show.reservations.some((r) => r.status !== "キャンセル")
     : id === "timetable" ? show.timetable.length > 0
     : true;
 

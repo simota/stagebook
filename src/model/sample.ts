@@ -120,6 +120,7 @@ export function sampleShow(): Show {
       { id: "r2", name: "伊藤 花子", kana: "いとう はなこ", count: 1, memberId: "suzuki", status: "予約", note: "物販も見たい" },
       { id: "r3", name: "渡辺 健", kana: "わたなべ けん", count: 3, memberId: "sato", status: "予約", note: "" },
     ],
+    reservationBlankRows: 0,
     general: {
       light: "全体的に暗めが好み。ストロボは使わないでください。",
       sound: "外音はVoを聴かせる方向で。返しは各自の要望を参照。",
